@@ -103,10 +103,10 @@ object Downloader {
               response
                 .entity
                 .dataBytes
-                .alsoToMat(Flow[ByteString]
+                .wireTapMat(Flow[ByteString]
                   .map(bytes => downloaded.addAndGet(bytes.length))
-                  .throttle(1, 1.second, 1, ThrottleMode.shaping)
                   .buffer(1, OverflowStrategy.dropHead)
+                  .throttle(1, 1.second, 1, ThrottleMode.shaping)
                   .alsoToMat(Sink.last)(Keep.right)
                   .to(
                     Sink.foreach { downloadedSize =>
